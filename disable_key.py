@@ -3,6 +3,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 from gui import Ui_Dialog
 from subprocess import Popen, PIPE
 import sys
+import shutil
 
 class DisableKey( Ui_Dialog ):
 
@@ -19,9 +20,11 @@ class DisableKey( Ui_Dialog ):
 	def set_value( self ):
 		if self.key_id.text().strip():
 			key = int( self.key_id.text() )
+			with open( '/tmp/xmodmap.backup', 'w' ) as backup:
+				backup.write( self._key_list() )
 			cmd = Popen( [ 'xmodmap', '-e', 'keycode %d=%s' % ( key, self.key_value.text() ) ], stdout = PIPE )
 			cmd.communicate()
-			self.result.setText( '%d successfully set to \'%s\'' % ( key, self.key_value.text() ) )
+			self.result.setText( '%d successfully set to \'%s\nBackup saved to /tmp/xmodmap.backup' % ( key, self.key_value.text() ) )
 			self.key_id.setText( '' )
 			self.key_value.setText( '' )
 
